@@ -9,16 +9,25 @@ require_once('../../public_connect.php');
 $whichInd = mysqlclean($_GET, "i", 64, $connection); //grab the issue from the URL which is stored in i
 
 
+$Indquery = "SELECT * FROM council_member_indicator WHERE ind_id = ".$whichInd;
+$Indresult = mysql_query($Indquery);
+
+while ($Indrow = mysql_fetch_assoc($Indresult)) {
+  $myInd = $Indrow['ind_shortname'];
+}
+
+//echo $myInd;
+
+
 $the_data = array(); //store everything on one array
 
 
-//the issue id and name. We need the issue_id before starting second query
-$query = "SELECT * FROM council_member_names";
+$query = "SELECT n.name, t.value, m.TEXT FROM city_council_2013_main m, council_member_".$myInd." t, council_member_names n WHERE m.INDICATOR_ID = ".$whichInd." AND m.VALUE_ID = t.id AND m.NAME_ID = n.name_id ORDER BY t.id ASC";
+
 $result = mysql_query($query);
 
 while ($row = mysql_fetch_assoc($result)) {
-echo $row["name"]."<br/>";
-
+  	array_push($the_data, array('name'=> $row['name'], 'value'=> $row['value'], 'text'=> $row['TEXT']));
 }
 	
 
